@@ -76,13 +76,51 @@ end
   end
 
   def borrow_a_book
-    #
+    puts "You are borrowing as yang."
+    show_all_books
+    puts "Enter title you want to borrow"
+    book_title = gets
+    book = Book.find_by_title(book_title.chomp.downcase)
+    if book != nil
+      puts "You lend #{book.title}, please return after 7 days."
+      now = Time.new
+      book.borrowed_when = Time.now
+      book.user_id = 1
+      return_time = Time.mktime(now.year, now.month, now.day+7, now.hour, now.min)
+      book.dueback = return_time
+      book.save
+      p book
+    else
+      puts "No such book"
+    end
   end
 
   def return_a_book
-    #
+    book_list = Book.where("user_id = '#{User.find_by_name("yang").id}'")
+    book_arr = Array.new
+
+    if(book_list != nil)
+      puts "Your borrowing list:"
+        book_list.each do |b|
+          book_arr << b
+          p b
+        end
+      puts "Enter title you want to return"
+      book_title = gets
+
+        book_arr.each do |b|
+          if b.title == book_title.chomp.downcase
+            b.user_id = nil
+            b.borrowed_when = nil
+            b.dueback = nil
+            b.save
+            p b
+          end
+        end
+    end
+
   end
-  
+
 
   def show_all_books
     Book.all.each do |b|
@@ -113,7 +151,7 @@ end
 
 
 #
-Clean.up
+#Clean.up
 user1 = User.create(:name => 'yang',
                    :age => 24)
 user2 = User.create(:name => 'joe',
